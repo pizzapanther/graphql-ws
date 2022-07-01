@@ -5,7 +5,6 @@ from types import CoroutineType, GeneratorType
 from typing import Any, Dict, List, Union
 from weakref import WeakSet
 
-from graphql.execution.executors.asyncio import AsyncioExecutor
 from promise import Promise
 
 from graphql_ws import base
@@ -15,6 +14,17 @@ from .observable_aiter import setup_observable_extension
 
 setup_observable_extension()
 CO_ITERABLE_COROUTINE = inspect.CO_ITERABLE_COROUTINE
+
+
+class SimpleExecutor:
+    def wait_until_finished(self):
+        pass
+
+    def clean(self):
+        pass
+
+    def execute(self, fn, *args, **kwargs):
+        return fn(*args, **kwargs)
 
 
 # Copied from graphql-core v3.1.0 (graphql/pyutils/is_awaitable.py)
@@ -109,7 +119,7 @@ class BaseAsyncConnectionContext(base.BaseConnectionContext, ABC):
 
 
 class BaseAsyncSubscriptionServer(base.BaseSubscriptionServer, ABC):
-    graphql_executor = AsyncioExecutor
+    graphql_executor = SimpleExecutor
 
     def __init__(self, schema, keep_alive=True, loop=None):
         self.loop = loop
